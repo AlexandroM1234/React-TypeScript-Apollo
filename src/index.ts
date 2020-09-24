@@ -5,7 +5,6 @@ import mircroconfig from "./mikro-orm.config";
 const main = async () => {
   const orm = await MikroORM.init(mircroconfig);
   const post = orm.em.create(Post, { title: "my first post" });
-
   await orm.em.persistAndFlush(post);
 };
 
