@@ -3,7 +3,6 @@ import { MikroORM } from "@mikro-orm/core";
 import { __prod___ } from "./constatnts";
 import mircroconfig from "./mikro-orm.config";
 import express from "express";
-import { Post } from "./entities/Post";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { HelloResolver } from "./resolvers/hello";
