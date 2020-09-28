@@ -96,7 +96,7 @@ export class UserResolver {
   async login(
     // takes in the same options as register
     @Arg("options") options: UsernamePasswordIput,
-    @Ctx() { em }: MyContext
+    @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
     // if a user is not found error field is returned
     const user = await em.findOne(User, { username: options.username });
@@ -118,6 +118,8 @@ export class UserResolver {
         errors: [{ field: "password", message: "password was incorrect" }],
       };
     }
+
+    req.session!.userId = user.id;
     // if the password is correct the user is returned
     return { user };
   }
