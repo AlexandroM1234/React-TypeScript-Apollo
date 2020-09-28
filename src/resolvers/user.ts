@@ -47,6 +47,7 @@ export class UserResolver {
     @Arg("options") options: UsernamePasswordIput,
     @Ctx() { em }: MyContext
   ): Promise<UserResponse> {
+    // checks for username length
     if (options.username.length <= 2) {
       return {
         errors: [
@@ -57,6 +58,7 @@ export class UserResolver {
         ],
       };
     }
+    // checks with password length
     if (options.password.length <= 2) {
       return {
         errors: [
@@ -74,9 +76,11 @@ export class UserResolver {
       username: options.username,
       password: hashedPassword,
     });
+    // trys to register a new user
     try {
       await em.persistAndFlush(user);
     } catch (er) {
+      //  if a user already has that username throws an error
       if (er.code === "23505") {
         return {
           errors: [
@@ -88,6 +92,7 @@ export class UserResolver {
         };
       }
     }
+    // if everything else works return the user object
     return { user };
   }
 

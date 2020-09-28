@@ -14,22 +14,28 @@ import connectRedis from "connect-redis";
 import { MyContext } from "./types";
 
 const main = async () => {
+  // initialzied orm with the config file
   const orm = await MikroORM.init(mircroconfig);
+  // migrations on auto
   await orm.getMigrator().up();
 
   const app = express();
-
+  // connects reddis with express session
   const RedisStore = connectRedis(session);
   const redisClient = redis.createClient();
-
+  // set up sesstion with express app
   app.use(
     session({
+      // session name
       name: "xqc",
+      // store with redis
       store: new RedisStore({
         client: redisClient,
         disableTouch: true,
       }),
+      // cookie options
       cookie: {
+        // lasts a day
         maxAge: 1000 * 60 * 60 * 24 * 365 * 1,
         httpOnly: true,
         sameSite: "lax",
@@ -42,10 +48,12 @@ const main = async () => {
   );
 
   const apolloServer = new ApolloServer({
+    // builds apollo schema with resolvers made
     schema: await buildSchema({
       resolvers: [HelloResolver, PostResolver, UserResolver],
       validate: false,
     }),
+    // context with req and res from express and data from orm
     context: ({ req, res }): MyContext => ({ em: orm.em, req, res }),
   });
 
