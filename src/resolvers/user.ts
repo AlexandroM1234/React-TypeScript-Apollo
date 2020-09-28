@@ -34,19 +34,39 @@ class UserResponse {
   @Field(() => [FieldError], { nullable: true })
   errors?: FieldError[];
 
-  @Field()
+  @Field(() => User, { nullable: true })
   user?: User;
 }
 
 @Resolver()
 export class UserResolver {
   // Register Mutation returns a User type
-  @Mutation(() => User)
+  @Mutation(() => UserResponse)
   async register(
     // Expects and options object that has a username and password
     @Arg("options") options: UsernamePasswordIput,
     @Ctx() { em }: MyContext
-  ) {
+  ): Promise<UserResponse> {
+    if (options.username.length <= 2) {
+      return {
+        errors: [
+          {
+            field: "username",
+            message: "length must be greater than 2",
+          },
+        ],
+      };
+    }
+    if (options.password.length <= 2) {
+      return {
+        errors: [
+          {
+            field: "password",
+            message: "length must be greater than 2",
+          },
+        ],
+      };
+    }
     // password gets hashed using argon2
     const hashedPassword = await argon2.hash(options.password);
     // user is created in the database and returned on a successful creation
@@ -54,8 +74,21 @@ export class UserResolver {
       username: options.username,
       password: hashedPassword,
     });
-    await em.persistAndFlush(user);
-    return user;
+    try {
+      await em.persistAndFlush(user);
+    } catch (er) {
+      if (er.code === "23505") {
+        return {
+          errors: [
+            {
+              field: "username",
+              message: "that username is already taken",
+            },
+          ],
+        };
+      }
+    }
+    return { user };
   }
 
   // Login mutation that can return a user if login is successful or an array of errors which have what field was wrong and a message of what was wrong with it
