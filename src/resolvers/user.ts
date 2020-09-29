@@ -7,6 +7,7 @@ import {
   InputType,
   Mutation,
   ObjectType,
+  Query,
   Resolver,
 } from "type-graphql";
 import argon2 from "argon2";
@@ -40,12 +41,20 @@ class UserResponse {
 
 @Resolver()
 export class UserResolver {
+  @Query(() => User, { nullable: true })
+  async me(@Ctx() { req, em }: MyContext) {
+    if (!req.session!.userId) {
+      return null;
+    }
+    const user = await em.findOne(User, { id: req.session!.userId });
+    return user;
+  }
   // Register Mutation returns a User type
   @Mutation(() => UserResponse)
   async register(
     // Expects and options object that has a username and password
     @Arg("options") options: UsernamePasswordIput,
-    @Ctx() { em }: MyContext
+    @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
     // checks for username length
     if (options.username.length <= 2) {
@@ -92,6 +101,11 @@ export class UserResolver {
         };
       }
     }
+    // store user id in session
+    // this will set a cookie for a user
+    // auto login in user
+    req.session!.userId = user.id;
+
     // if everything else works return the user object
     return { user };
   }
