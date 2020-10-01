@@ -3,9 +3,11 @@ import { Box, Button, FormControl, FormLabel, Input } from "@chakra-ui/core";
 import Wrapper from "../components/Wrapper";
 import React from "react";
 import InputField from "../components/InputField";
+import { useMutation } from "urql";
 interface registerProps {}
 
 const Register: React.FC<registerProps> = () => {
+  // const [] = useMutation();
   return (
     <Wrapper variant="small">
       <Formik
@@ -14,7 +16,7 @@ const Register: React.FC<registerProps> = () => {
           console.log(values);
         }}
       >
-        {({ values, handleChange }) => (
+        {({ isSubmitting }) => (
           <Form>
             <InputField
               name="username"
@@ -30,7 +32,11 @@ const Register: React.FC<registerProps> = () => {
               />
             </Box>
             <Box mt={4}>
-              <Button type="submit" variantColor="teal">
+              <Button
+                type="submit"
+                variantColor="teal"
+                isLoading={isSubmitting}
+              >
                 Register
               </Button>
             </Box>
