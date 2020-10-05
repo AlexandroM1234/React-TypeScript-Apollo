@@ -11,6 +11,7 @@ import {
   Resolver,
 } from "type-graphql";
 import argon2 from "argon2";
+import { EntityManager } from "@mikro-orm/postgresql";
 
 @InputType()
 // Username and password object for login validation register signup
@@ -81,16 +82,23 @@ export class UserResolver {
     // password gets hashed using argon2
     const hashedPassword = await argon2.hash(options.password);
     // user is created in the database and returned on a successful creation
-    const user = em.create(User, {
-      username: options.username,
-      password: hashedPassword,
-    });
+    let user;
     // trys to register a new user
     try {
-      await em.persistAndFlush(user);
+      const result = await (em as EntityManager)
+        .createQueryBuilder(User)
+        .getKnexQuery()
+        .insert({
+          username: options.username,
+          password: hashedPassword,
+          created_at: new Date(),
+          updated_at: new Date(),
+        })
+        .returning("*");
+      user = result[0];
     } catch (er) {
       //  if a user already has that username throws an error
-      if (er.code === "23505") {
+      if (er.detail.includes("already exists")) {
         return {
           errors: [
             {
