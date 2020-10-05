@@ -74,22 +74,22 @@ exports.UserResolver = void 0;
 const User_1 = require("../entities/User");
 const type_graphql_1 = require("type-graphql");
 const argon2_1 = __importDefault(require("argon2"));
-let UsernamePasswordIput = class UsernamePasswordIput {};
+let UsernamePasswordInput = class UsernamePasswordInput {};
 __decorate(
   [type_graphql_1.Field(), __metadata("design:type", String)],
-  UsernamePasswordIput.prototype,
+  UsernamePasswordInput.prototype,
   "username",
   void 0
 );
 __decorate(
   [type_graphql_1.Field(), __metadata("design:type", String)],
-  UsernamePasswordIput.prototype,
+  UsernamePasswordInput.prototype,
   "password",
   void 0
 );
-UsernamePasswordIput = __decorate(
+UsernamePasswordInput = __decorate(
   [type_graphql_1.InputType()],
-  UsernamePasswordIput
+  UsernamePasswordInput
 );
 let FieldError = class FieldError {};
 __decorate(
@@ -234,7 +234,7 @@ __decorate(
     __param(0, type_graphql_1.Arg("options")),
     __param(1, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [UsernamePasswordIput, Object]),
+    __metadata("design:paramtypes", [UsernamePasswordInput, Object]),
     __metadata("design:returntype", Promise),
   ],
   UserResolver.prototype,
@@ -247,7 +247,7 @@ __decorate(
     __param(0, type_graphql_1.Arg("options")),
     __param(1, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [UsernamePasswordIput, Object]),
+    __metadata("design:paramtypes", [UsernamePasswordInput, Object]),
     __metadata("design:returntype", Promise),
   ],
   UserResolver.prototype,

@@ -15,7 +15,7 @@ import { EntityManager } from "@mikro-orm/postgresql";
 
 @InputType()
 // Username and password object for login validation register signup
-class UsernamePasswordIput {
+class UsernamePasswordInput {
   @Field()
   username: string;
   @Field()
@@ -54,7 +54,7 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   async register(
     // Expects and options object that has a username and password
-    @Arg("options") options: UsernamePasswordIput,
+    @Arg("options") options: UsernamePasswordInput,
     @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
     // checks for username length
@@ -122,7 +122,7 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   async login(
     // takes in the same options as register
-    @Arg("options") options: UsernamePasswordIput,
+    @Arg("options") options: UsernamePasswordInput,
     @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
     // if a user is not found error field is returned
