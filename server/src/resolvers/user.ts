@@ -150,4 +150,18 @@ export class UserResolver {
     // if the password is correct the user is returned
     return { user };
   }
+  @Mutation(() => Boolean)
+  logout(@Ctx() { req, res }: MyContext) {
+    return new Promise((resolve) =>
+      req.session!.destroy((err) => {
+        res.clearCookie("xqc");
+        if (err) {
+          console.log(err);
+          resolve(false);
+          return;
+        }
+        resolve(true);
+      })
+    );
+  }
 }
