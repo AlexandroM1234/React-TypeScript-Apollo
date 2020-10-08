@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { MikroORM } from "@mikro-orm/core";
-import { __prod___ } from "./constatnts";
+import { COOKIE_NAME, __prod___ } from "./constatnts";
 import mircroconfig from "./mikro-orm.config";
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
@@ -35,7 +35,7 @@ const main = async () => {
   app.use(
     session({
       // session name
-      name: "xqc",
+      name: COOKIE_NAME,
       // store with redis
       store: new RedisStore({
         client: redisClient,

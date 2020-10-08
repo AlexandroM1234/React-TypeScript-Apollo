@@ -12,6 +12,7 @@ import {
 } from "type-graphql";
 import argon2 from "argon2";
 import { EntityManager } from "@mikro-orm/postgresql";
+import { COOKIE_NAME } from "src/constatnts";
 
 @InputType()
 // Username and password object for login validation register signup
@@ -150,11 +151,12 @@ export class UserResolver {
     // if the password is correct the user is returned
     return { user };
   }
+  // Logout functionality
   @Mutation(() => Boolean)
   logout(@Ctx() { req, res }: MyContext) {
     return new Promise((resolve) =>
       req.session!.destroy((err) => {
-        res.clearCookie("xqc");
+        res.clearCookie(COOKIE_NAME);
         if (err) {
           console.log(err);
           resolve(false);
