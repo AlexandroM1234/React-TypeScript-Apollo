@@ -11,10 +11,11 @@ import {
 } from "type-graphql";
 import argon2 from "argon2";
 import { EntityManager } from "@mikro-orm/postgresql";
-import { COOKIE_NAME } from "src/constatnts";
+import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from "src/constants";
 import { UsernamePasswordInput } from "../utils/UsernamePasswordInput";
 import { validateRegister } from "src/utils/validateRegister";
-
+import { sendEmail } from "src/utils/sendEmail";
+import { v4 } from "uuid";
 // Error object that if an error appears will respond with what field the error was in and a message of what was wrong with it
 @ObjectType()
 class FieldError {
@@ -37,8 +38,29 @@ class UserResponse {
 @Resolver()
 export class UserResolver {
   @Mutation(() => Boolean)
-  async forgotPassword(@Arg("email") email: string, @Ctx() { em }: MyContext) {
+  async forgotPassword(
+    @Arg("email") email: string,
+    @Ctx() { em, redis }: MyContext
+  ) {
     const user = await em.findOne(User, { email });
+    if (!user) {
+      // user doesn't exist
+      return false;
+    }
+
+    const token = v4();
+
+    await redis.set(
+      FORGET_PASSWORD_PREFIX + token,
+      user.id,
+      "ex",
+      1000 * 60 * 60 * 24 * 3
+    ); // up to 3 days to change password
+
+    await sendEmail(
+      email,
+      `<a href="http://localhost:3000/change-password/${token}"> reset password </a>`
+    );
     return true;
   }
 
