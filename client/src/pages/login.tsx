@@ -15,10 +15,10 @@ const Login: React.FC<{}> = () => {
   return (
     <Wrapper variant="small">
       <Formik
-        initialValues={{ username: "", password: "" }}
+        initialValues={{ usernameOrEmail: "", password: "" }}
         onSubmit={async (values, { setErrors }) => {
           // ERROR HANDLING
-          const response = await login({ options: values });
+          const response = await login(values);
           if (response.data?.login.errors) {
             // if there is an error use toErrorMap to format shape of error to match that from graphql
             setErrors(toErrorMap(response.data.login.errors));
@@ -31,9 +31,9 @@ const Login: React.FC<{}> = () => {
         {({ isSubmitting }) => (
           <Form>
             <InputField
-              name="username"
-              placeholder="username"
-              label="Username"
+              name="usernameOrEmail"
+              placeholder="username or email"
+              label="Username or Email"
             />
             <Box mt={4}>
               <InputField

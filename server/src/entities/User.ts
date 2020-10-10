@@ -22,6 +22,11 @@ export class User {
   @Field()
   @Property({ type: "text", unique: true })
   username!: string;
+  // Email
+  @Field()
+  @Property({ type: "text", unique: true })
+  email!: string;
+
   // password which is inputed by user but cannot be retrieved
   @Property({ type: text })
   password!: string;

@@ -4,7 +4,6 @@ import {
   Arg,
   Ctx,
   Field,
-  InputType,
   Mutation,
   ObjectType,
   Query,
@@ -13,15 +12,9 @@ import {
 import argon2 from "argon2";
 import { EntityManager } from "@mikro-orm/postgresql";
 import { COOKIE_NAME } from "src/constatnts";
+import { UsernamePasswordInput } from "../utils/UsernamePasswordInput";
+import { validateRegister } from "src/utils/validateRegister";
 
-@InputType()
-// Username and password object for login validation register signup
-class UsernamePasswordInput {
-  @Field()
-  username: string;
-  @Field()
-  password: string;
-}
 // Error object that if an error appears will respond with what field the error was in and a message of what was wrong with it
 @ObjectType()
 class FieldError {
@@ -43,6 +36,12 @@ class UserResponse {
 
 @Resolver()
 export class UserResolver {
+  @Mutation(() => Boolean)
+  async forgotPassword(@Arg("email") email: string, @Ctx() { em }: MyContext) {
+    const user = await em.findOne(User, { email });
+    return true;
+  }
+
   @Query(() => User, { nullable: true })
   async me(@Ctx() { req, em }: MyContext) {
     if (!req.session!.userId) {
@@ -58,28 +57,12 @@ export class UserResolver {
     @Arg("options") options: UsernamePasswordInput,
     @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
-    // checks for username length
-    if (options.username.length <= 2) {
-      return {
-        errors: [
-          {
-            field: "username",
-            message: "length must be greater than 2",
-          },
-        ],
-      };
+    const errors = validateRegister(options);
+
+    if (errors) {
+      return { errors };
     }
-    // checks with password length
-    if (options.password.length <= 2) {
-      return {
-        errors: [
-          {
-            field: "password",
-            message: "length must be greater than 2",
-          },
-        ],
-      };
-    }
+
     // password gets hashed using argon2
     const hashedPassword = await argon2.hash(options.password);
     // user is created in the database and returned on a successful creation
@@ -91,6 +74,7 @@ export class UserResolver {
         .getKnexQuery()
         .insert({
           username: options.username,
+          email: options.email,
           password: hashedPassword,
           created_at: new Date(),
           updated_at: new Date(),
@@ -123,23 +107,29 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   async login(
     // takes in the same options as register
-    @Arg("options") options: UsernamePasswordInput,
+    @Arg("usernameOrEmail") usernameOrEmail: string,
+    @Arg("password") password: string,
     @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
     // if a user is not found error field is returned
-    const user = await em.findOne(User, { username: options.username });
+    const user = await em.findOne(
+      User,
+      usernameOrEmail.includes("@")
+        ? { email: usernameOrEmail }
+        : { username: usernameOrEmail }
+    );
     if (!user) {
       return {
         errors: [
           {
-            field: "username",
+            field: "usernameOrEmail",
             message: "that username does not exist ",
           },
         ],
       };
     }
     // Once user is found the password is validated
-    const valid = await argon2.verify(user.password, options.password);
+    const valid = await argon2.verify(user.password, password);
     // if the password is invalid error is thrown
     if (!valid) {
       return {
