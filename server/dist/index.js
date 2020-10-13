@@ -71,7 +71,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
         cors: false,
     });
     app.listen(4000, () => {
-        console.log("server started on localhost:4000");
+        console.log("server started on http://localhost:4000/graphql");
     });
 });
 main().catch((err) => {
