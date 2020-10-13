@@ -1,7 +1,5 @@
 import "reflect-metadata";
-import { MikroORM } from "@mikro-orm/core";
 import { COOKIE_NAME, __prod___ } from "./constants";
-import mircroconfig from "./mikro-orm.config";
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
@@ -11,14 +9,21 @@ import { UserResolver } from "./resolvers/user";
 import Redis from "ioredis";
 import session from "express-session";
 import connectRedis from "connect-redis";
-import { MyContext } from "./types";
 import cors from "cors";
+import { createConnection } from "typeorm";
+import { User } from "./entities/User";
+import { Post } from "./entities/Post";
 
 const main = async () => {
+  const connection = await createConnection({
+    type: "postgres",
+    database: "TwitFaceTagram",
+    username: "postgres",
+    logging: true,
+    synchronize: true,
+    entities: [Post, User],
+  });
   // initialzied orm with the config file
-  const orm = await MikroORM.init(mircroconfig);
-  // migrations on auto
-  await orm.getMigrator().up();
 
   const app = express();
   // connects reddis with express session
@@ -63,7 +68,7 @@ const main = async () => {
       validate: false,
     }),
     // context with req and res from express and data from orm
-    context: ({ req, res }): MyContext => ({ em: orm.em, req, res, redis }),
+    context: ({ req, res }) => ({ req, res, redis }),
   });
 
   apolloServer.applyMiddleware({

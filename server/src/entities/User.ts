@@ -1,33 +1,39 @@
-import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
-import { text } from "express";
 import { Field, ObjectType } from "type-graphql";
+import {
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from "typeorm";
 
 // Schema for Post
 @ObjectType()
 @Entity()
-export class User {
+export class User extends BaseEntity {
   // Has an id
   @Field()
-  @PrimaryKey()
+  @PrimaryGeneratedColumn()
   id!: number;
   // created at which is made automatically
   @Field(() => String)
-  @Property({ type: "date" })
-  createdAt = new Date();
+  @CreateDateColumn()
+  createdAt: Date;
   // updated at which is created automatically
   @Field(() => String)
-  @Property({ type: "date", onUpdate: () => new Date() })
-  updatedAt = new Date();
+  @UpdateDateColumn()
+  updatedAt: Date;
   // username which is inputed by the user
   @Field()
-  @Property({ type: "text", unique: true })
+  @Column({ unique: true })
   username!: string;
   // Email
   @Field()
-  @Property({ type: "text", unique: true })
+  @Column({ unique: true })
   email!: string;
 
   // password which is inputed by user but cannot be retrieved
-  @Property({ type: text })
+  @Column()
   password!: string;
 }
