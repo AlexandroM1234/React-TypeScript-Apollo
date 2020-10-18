@@ -4,9 +4,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { User } from "./User";
 
 // Schema for Post
 @ObjectType()
@@ -16,6 +18,27 @@ export class Post extends BaseEntity {
   @Field()
   @PrimaryGeneratedColumn()
   id!: number;
+  // title which is inputed by the user
+  @Field()
+  @Column()
+  title!: string;
+  // caption field
+  @Field()
+  @Column()
+  text!: string;
+
+  // Likes counter
+  @Field()
+  @Column({ type: "int", default: 0 })
+  likes!: number;
+
+  @Field()
+  @Column()
+  creatorId: number;
+
+  @ManyToOne(() => User, (user) => user.posts)
+  creator: User;
+
   // created at which is made automatically
   @Field(() => String)
   @CreateDateColumn()
@@ -24,8 +47,4 @@ export class Post extends BaseEntity {
   @Field(() => String)
   @UpdateDateColumn()
   updatedAt: Date;
-  // title which is inputed by the user
-  @Field()
-  @Column()
-  title!: string;
 }
