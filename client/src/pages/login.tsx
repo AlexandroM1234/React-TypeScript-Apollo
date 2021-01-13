@@ -9,6 +9,7 @@ import { useRouter } from "next/router";
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import NextLink from "next/link";
+import { type } from "os";
 
 const Login: React.FC<{}> = () => {
   const router = useRouter();
@@ -25,7 +26,12 @@ const Login: React.FC<{}> = () => {
             setErrors(toErrorMap(response.data.login.errors));
             // if no error and you get the user as a response push to home page
           } else if (response.data?.login.user) {
-            router.push("/");
+            // if the query param is there and the user is signed in it will be pushed to the create post page
+            if (typeof router.query.next === "string") {
+              router.push(router.query.next);
+            } else {
+              router.push("/");
+            }
           }
         }}
       >
