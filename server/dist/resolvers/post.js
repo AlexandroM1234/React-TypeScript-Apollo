@@ -88,13 +88,18 @@ let PostResolver = class PostResolver {
   posts(limit, cursor) {
     return __awaiter(this, void 0, void 0, function* () {
       const realLimit = Math.min(50, limit);
-      return typeorm_1
+      const qb = typeorm_1
         .getConnection()
         .getRepository(Post_1.Post)
         .createQueryBuilder("p")
         .orderBy('"createdAt"', "DESC")
-        .take(realLimit)
-        .getMany();
+        .take(realLimit);
+      if (cursor) {
+        qb.where('"createdAt" <:cursor', {
+          cursor: new Date(parseInt(cursor)),
+        });
+      }
+      return qb.getMany();
     });
   }
   post(id) {
@@ -131,7 +136,10 @@ let PostResolver = class PostResolver {
 __decorate(
   [
     type_graphql_1.Query(() => [Post_1.Post]),
-    __param(0, type_graphql_1.Arg("limit")),
+    __param(
+      0,
+      type_graphql_1.Arg("limit", () => type_graphql_1.Int)
+    ),
     __param(
       1,
       type_graphql_1.Arg("cursor", () => String, { nullable: true })
