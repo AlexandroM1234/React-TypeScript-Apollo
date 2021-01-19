@@ -13,7 +13,7 @@ import cors from "cors";
 import { createConnection } from "typeorm";
 import { User } from "./entities/User";
 import { Post } from "./entities/Post";
-
+import path from "path";
 const main = async () => {
   const connection = await createConnection({
     type: "postgres",
@@ -21,8 +21,10 @@ const main = async () => {
     username: "postgres",
     logging: true,
     synchronize: true,
+    migrations: [path.join(__dirname, "./migrations/*")],
     entities: [Post, User],
   });
+  await connection.runMigrations();
   // initialzied orm with the config file
 
   const app = express();
