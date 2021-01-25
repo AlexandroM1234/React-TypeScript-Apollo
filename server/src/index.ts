@@ -26,7 +26,7 @@ const main = async () => {
   });
   await connection.runMigrations();
   // initialzied orm with the config file
-
+  // await Post.delete({});
   const app = express();
   // connects reddis with express session
   const RedisStore = connectRedis(session);
