@@ -44,6 +44,7 @@ export type Post = {
   text: Scalars["String"];
   likes: Scalars["Float"];
   creatorId: Scalars["Float"];
+  creator: User;
   createdAt: Scalars["String"];
   updatedAt: Scalars["String"];
   textSnippet: Scalars["String"];
@@ -209,13 +210,18 @@ export type PostsQuery = { __typename?: "Query" } & {
         { __typename?: "Post" } & Pick<
           Post,
           | "id"
-          | "createdAt"
-          | "updatedAt"
           | "title"
+          | "creatorId"
+          | "createdAt"
           | "likes"
           | "text"
           | "textSnippet"
-        >
+        > & {
+            creator: { __typename?: "User" } & Pick<
+              User,
+              "id" | "username" | "email" | "createdAt" | "updatedAt"
+            >;
+          }
       >;
     };
 };
@@ -345,12 +351,19 @@ export const PostsDocument = gql`
       hasMore
       posts {
         id
-        createdAt
-        updatedAt
         title
+        creatorId
+        createdAt
         likes
         text
         textSnippet
+        creator {
+          id
+          username
+          email
+          createdAt
+          updatedAt
+        }
       }
     }
   }

@@ -39,6 +39,7 @@ const Index = () => {
               borderRadius="md"
             >
               <Heading fontSize="xl">{p.title}</Heading>
+              <Heading fontSize="md">By: {p.creator.username}</Heading>
               <Text mt={4}>{p.textSnippet}</Text>
             </Box>
           ))}
