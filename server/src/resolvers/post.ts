@@ -37,6 +37,7 @@ export class PostResolver {
   textSnippet(@Root() root: Post) {
     return root.text.slice(0, 50);
   }
+
   // Query to get posts
   @Query(() => PaginatedPosts)
   async posts(
