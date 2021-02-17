@@ -102,6 +102,26 @@ let PostResolver = class PostResolver {
   textSnippet(root) {
     return root.text.slice(0, 50);
   }
+  vote(postId, value, { req }) {
+    return __awaiter(this, void 0, void 0, function* () {
+      const { userId } = req.session;
+      const isUpVote = value !== -1;
+      const likeValue = isUpVote ? 1 : -1;
+      yield typeorm_1.getConnection().query(`
+      START TRANSACTION;
+
+      insert into likes ("userId", "postId", value)
+      values (${userId},${postId},${likeValue});
+
+      update post
+      set points = points + ${likeValue}
+      where id = ${postId};
+
+      COMMIT;
+    `);
+      return true;
+    });
+  }
   posts(limit, cursor) {
     return __awaiter(this, void 0, void 0, function* () {
       const realLimit = Math.min(50, limit);
@@ -175,6 +195,27 @@ __decorate(
   ],
   PostResolver.prototype,
   "textSnippet",
+  null
+);
+__decorate(
+  [
+    type_graphql_1.Mutation(() => Boolean),
+    type_graphql_1.UseMiddleware(isAuth_1.isAuth),
+    __param(
+      0,
+      type_graphql_1.Arg("postId", () => type_graphql_1.Int)
+    ),
+    __param(
+      1,
+      type_graphql_1.Arg("value", () => type_graphql_1.Int)
+    ),
+    __param(2, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number, Object]),
+    __metadata("design:returntype", Promise),
+  ],
+  PostResolver.prototype,
+  "vote",
   null
 );
 __decorate(
