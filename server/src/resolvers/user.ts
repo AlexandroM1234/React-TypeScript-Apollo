@@ -45,7 +45,7 @@ export class UserResolver {
       return user.email;
     }
     // current user wants to see someone elses email
-    return "";
+    return "I am not you";
   }
   @Mutation(() => UserResponse)
   async changePassword(

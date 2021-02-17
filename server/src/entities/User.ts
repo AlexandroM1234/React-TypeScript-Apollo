@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { Likes } from "./Likes";
 import { Post } from "./Post";
 
 // Schema for Post
@@ -33,6 +34,9 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Post, (post) => post.creator)
   posts: Post[];
+
+  @OneToMany(() => Likes, (likes) => likes.user)
+  likes: Likes[];
 
   // created at which is made automatically
   @Field(() => String)

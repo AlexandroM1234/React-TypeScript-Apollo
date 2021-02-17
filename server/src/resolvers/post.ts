@@ -38,6 +38,38 @@ export class PostResolver {
     return root.text.slice(0, 50);
   }
 
+  @Mutation(() => Boolean)
+  @UseMiddleware(isAuth)
+  async vote(
+    @Arg("postId", () => Int) postId: number,
+    @Arg("value", () => Int) value: number,
+    @Ctx() { req }: MyContext
+  ) {
+    const { userId } = req.session!;
+    const isUpVote = value !== -1;
+    const likeValue = isUpVote ? 1 : -1;
+
+    // await Likes.insert({
+    //   userId,
+    //   postId,
+    //   value: likeValue,
+    // });
+    await getConnection().query(
+      `
+      START TRANSACTION;
+
+      insert into likes ("userId", "postId", value)
+      values (${userId},${postId},${likeValue});
+
+      update post
+      set points = points + ${likeValue}
+      where id = ${postId};
+
+      COMMIT;
+    `
+    );
+    return true;
+  }
   // Query to get posts
   @Query(() => PaginatedPosts)
   async posts(

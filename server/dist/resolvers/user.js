@@ -65,7 +65,7 @@ let UserResolver = class UserResolver {
         if (req.session.userId === user.id) {
             return user.email;
         }
-        return "";
+        return "I am not you";
     }
     changePassword(token, newPassword, { redis, req }) {
         return __awaiter(this, void 0, void 0, function* () {

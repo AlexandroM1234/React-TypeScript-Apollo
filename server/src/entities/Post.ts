@@ -5,9 +5,11 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { Likes } from "./Likes";
 import { User } from "./User";
 
 // Schema for Post
@@ -30,7 +32,7 @@ export class Post extends BaseEntity {
   // Likes counter
   @Field()
   @Column({ type: "int", default: 0 })
-  likes!: number;
+  points!: number;
 
   @Field()
   @Column()
@@ -39,6 +41,9 @@ export class Post extends BaseEntity {
   @Field()
   @ManyToOne(() => User, (user) => user.posts)
   creator: User;
+
+  @OneToMany(() => Likes, (likes) => likes.post)
+  likes: Likes[];
 
   // created at which is made automatically
   @Field(() => String)

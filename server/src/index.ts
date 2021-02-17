@@ -14,6 +14,7 @@ import { createConnection } from "typeorm";
 import { User } from "./entities/User";
 import { Post } from "./entities/Post";
 import path from "path";
+import { Likes } from "./entities/Likes";
 const main = async () => {
   const connection = await createConnection({
     type: "postgres",
@@ -22,7 +23,7 @@ const main = async () => {
     logging: true,
     synchronize: true,
     migrations: [path.join(__dirname, "./migrations/*")],
-    entities: [Post, User],
+    entities: [Post, User, Likes],
   });
   await connection.runMigrations();
   // initialzied orm with the config file
