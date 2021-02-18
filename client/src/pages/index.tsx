@@ -9,7 +9,7 @@ import React from "react";
 import { useState } from "react";
 const Index = () => {
   const [variables, setVariables] = useState({
-    limit: 10,
+    limit: 15,
     cursor: null as null | string,
   });
   const [{ data, fetching }] = usePostsQuery({ variables });
@@ -39,7 +39,8 @@ const Index = () => {
               borderRadius="md"
             >
               <Heading fontSize="xl">{p.title}</Heading>
-              <Heading fontSize="md">By: {p.creator.username}</Heading>
+              <Text>{p.creator.username}</Text>
+              <Heading fontSize="md">Likes: {p.points}</Heading>
               <Text mt={4}>{p.textSnippet}</Text>
             </Box>
           ))}
