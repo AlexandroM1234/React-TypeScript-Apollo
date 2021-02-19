@@ -3,7 +3,7 @@ mutation createPost($input: PostInput!) {
     id
     title
     text
-    likes
+    points
     creatorId
   }
 }
