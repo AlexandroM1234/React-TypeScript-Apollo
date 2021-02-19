@@ -3,10 +3,21 @@ import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { usePostsQuery } from "../generated/graphql";
 import { Layout } from "../components/Layout";
-import { Box, Button, Flex, Heading, Link, Stack, Text } from "@chakra-ui/core";
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  Icon,
+  IconButton,
+  Link,
+  Stack,
+  Text,
+} from "@chakra-ui/core";
 import NextLink from "next/link";
 import React from "react";
 import { useState } from "react";
+import { LikeSection } from "../components/LikeSection";
 const Index = () => {
   const [variables, setVariables] = useState({
     limit: 15,
@@ -30,7 +41,7 @@ const Index = () => {
       ) : (
         <Stack>
           {data!.posts.posts.map((p) => (
-            <Box
+            <Flex
               key={p.id}
               p={5}
               shadow="md"
@@ -38,11 +49,14 @@ const Index = () => {
               flex="1"
               borderRadius="md"
             >
-              <Heading fontSize="xl">{p.title}</Heading>
-              <Text>{p.creator.username}</Text>
-              <Heading fontSize="md">Likes: {p.points}</Heading>
-              <Text mt={4}>{p.textSnippet}</Text>
-            </Box>
+              <LikeSection post={p} />
+              <Box>
+                <Heading fontSize="xl">{p.title}</Heading>
+                <Text>{p.creator.username}</Text>
+                <Heading fontSize="md">Likes: {p.points}</Heading>
+                <Text mt={4}>{p.textSnippet}</Text>
+              </Box>
+            </Flex>
           ))}
         </Stack>
       )}
