@@ -1,3 +1,4 @@
+import { Likes } from "src/entities/Likes";
 import { Post } from "src/entities/Post";
 import { isAuth } from "src/middleware/isAuth";
 import { MyContext } from "src/types";
@@ -49,25 +50,50 @@ export class PostResolver {
     const isUpVote = value !== -1;
     const likeValue = isUpVote ? 1 : -1;
 
-    // await Likes.insert({
-    //   userId,
-    //   postId,
-    //   value: likeValue,
-    // });
-    await getConnection().query(
-      `
-      START TRANSACTION;
+    const like = await Likes.findOne({ where: { postId, userId } });
+    // user has voted on the post before
+    // and their like vote is being changed
+    if (like && like.value !== likeValue) {
+      // state where usser hasn't liked post before
+      await getConnection().transaction(async (tm) => {
+        await tm.query(
+          `
+          update likes
+          set value = $1
+          where "postId" = $2 and "userId" = $3
+         `,
+          [likeValue, postId, userId]
+        );
+        await tm.query(
+          `
+          update post
+          set points = points + $1
+          where id = $2
 
+        `,
+          [2 * likeValue, postId]
+        );
+      });
+    } else if (!like) {
+      getConnection().transaction(async (tm) => {
+        await tm.query(
+          `
       insert into likes ("userId", "postId", value)
-      values (${userId},${postId},${likeValue});
-
+      values ($1,$2,$3);
+        `,
+          [userId, postId, likeValue]
+        );
+        await tm.query(
+          `
       update post
-      set points = points + ${likeValue}
-      where id = ${postId};
+      set points = points + $1
+      where id = $2
+        `,
+          [likeValue, postId]
+        );
+      });
+    }
 
-      COMMIT;
-    `
-    );
     return true;
   }
   // Query to get posts
@@ -75,12 +101,13 @@ export class PostResolver {
   async posts(
     @Arg("limit", () => Int) limit: number,
     // Cursor get the position of the post from the created at and show all the ones after that
-    @Arg("cursor", () => String, { nullable: true }) cursor: string | null
+    @Arg("cursor", () => String, { nullable: true }) cursor: string | null,
+    @Ctx() { req }: MyContext
   ): Promise<PaginatedPosts> {
     const realLimit = Math.min(50, limit);
     const realLimitPlusOne = realLimit + 1;
 
-    const replacements: any[] = [realLimitPlusOne];
+    const replacements: any[] = [realLimitPlusOne, req.session?.userId];
 
     if (cursor) {
       replacements.push(new Date(parseInt(cursor)));
@@ -95,10 +122,15 @@ export class PostResolver {
         'email', u.email,
         'createdAt', u."createdAt",
         'updatedAt', u."updatedAt"
-        ) creator
+        ) creator, 
+        ${
+          req.session?.userId
+            ? '(select value from likes where "userId" = $2 and "postId" = p.id )"voteStatus"'
+            : 'null as "voteStatus"'
+        }
       from post p
       inner join public.user u on u.id = p."creatorId"
-      ${cursor ? `where p."createdAt" < $2` : ""}
+      ${cursor ? `where p."createdAt" < $3` : ""}
       order by p."createdAt" DESC
       limit $1
     `,

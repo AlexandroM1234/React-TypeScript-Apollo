@@ -19,6 +19,9 @@ export const LikeSection: React.FC<LikeSectionProps> = ({ post }) => {
     >
       <IconButton
         onClick={async () => {
+          if (post.voteStatus === 1) {
+            return;
+          }
           setLoadingState("upvote-loading");
           await vote({
             postId: post.id,
@@ -26,6 +29,7 @@ export const LikeSection: React.FC<LikeSectionProps> = ({ post }) => {
           });
           setLoadingState("not-loading");
         }}
+        variantColor={post.voteStatus === 1 ? "green" : undefined}
         isLoading={loadingState === "upvote-loading"}
         aria-label="like post"
         icon="chevron-up"
@@ -35,6 +39,9 @@ export const LikeSection: React.FC<LikeSectionProps> = ({ post }) => {
       {post.points}
       <IconButton
         onClick={async () => {
+          if (post.voteStatus === -1) {
+            return;
+          }
           setLoadingState("downvote-loading");
           await vote({
             postId: post.id,
@@ -42,6 +49,7 @@ export const LikeSection: React.FC<LikeSectionProps> = ({ post }) => {
           });
           setLoadingState("not-loading");
         }}
+        variantColor={post.voteStatus === -1 ? "red" : undefined}
         isLoading={loadingState === "downvote-loading"}
         aria-label="dislike post"
         icon="chevron-down"
