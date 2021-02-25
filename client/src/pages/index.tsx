@@ -53,7 +53,6 @@ const Index = () => {
               <Box>
                 <Heading fontSize="xl">{p.title}</Heading>
                 <Text>{p.creator.username}</Text>
-                <Heading fontSize="md">Likes: {p.points}</Heading>
                 <Text mt={4}>{p.textSnippet}</Text>
               </Box>
             </Flex>
